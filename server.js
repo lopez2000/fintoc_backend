@@ -13,7 +13,7 @@ const LINK_TOKEN = process.env.LINK_TOKEN;
 app.use(bodyParser.json());
 
 // Define endpoint to handle webhook requests from Fintoc
-app.post('/api/webhook', async (req, res) => {
+/* app.post('/api/webhook', async (req, res) => {
   try {
     console.log('Webhook received:', req.body);
     // Extract the refreshed_object_id from the webhook payload
@@ -38,6 +38,11 @@ app.post('/api/webhook', async (req, res) => {
     console.error('Error processing webhook:', error);
     res.status(500).send('Error processing webhook');
   }
+}); */
+
+app.post('/', (req, res) => {
+  console.log('Webhook received:', req.body);
+  res.status(200).send('Webhook received and processed successfully');
 });
 
 // Request accounts balances
