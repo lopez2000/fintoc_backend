@@ -16,27 +16,49 @@ app.use(bodyParser.json());
 app.post('/', async (req, res) => {
   try {
     console.log('Webhook received:', req.body);
-    // Extract the refreshed_object_id from the webhook payload
-    const refreshedObjectId = req.body.data.refreshed_object_id;
 
-    // Make a request to the Fintoc API to retrieve movements for the account
-    const url = `https://api.fintoc.com/v1/accounts/${refreshedObjectId}/movements?link_token=${LINK_TOKEN}`; // Replace YOUR_LINK_TOKEN with your link token
-    const headers = {
-      'Authorization': `${FINTOC_API_KEY}`,
-      'Accept': 'application/json'
-    };
+    const webhookType = req.body.type;
 
-    const response = await axios.get(url, { headers });
+    if (webhookType === 'account.refresh_intent.succeeded') {
+      // Handle account webhook
+      const refreshedObjectId = req.body.data.refreshed_object_id;
+      const url = `https://api.fintoc.com/v1/accounts/${refreshedObjectId}/movements?link_token=${LINK_TOKEN}`;
+      const headers = {
+        'Authorization': `${FINTOC_API_KEY}`,
+        'Accept': 'application/json'
+      };
+      const response = await axios.get(url, { headers });
+      console.log('Movements:', response.data);
+      res.send('Movements retrieved');
 
-    // Handle the response from the Fintoc API
-    console.log('Movements:', response.data);
+    } else if (webhookType === 'account.refresh_intent.failed') {
+      // Handle account webhook
+      console.log('Account webhook received');
+      console.log('Account refresh failed');
+      res.send('Account refresh failed');
 
-    // Respond to the webhook request with a success message
-    res.status(200).send('Webhook received and processed successfully');
+    } else if (webhookType === account.refresh_intent.rejected) {
+      console.log('Account webhook received');
+      console.log('Account refresh rejected');
+      res.send('Account refresh rejected');
+
+    } else if (webhookType === 'accont.refresh_intent.movements_removed') {
+      console.log('Account webhook received');
+      console.log('Movements removed');
+      res.send('Movements removed');
+
+    } else if (webhookType === 'link.credentials_changed') {
+      // Handle link webhook
+      console.log('Link webhook received');
+      res.send('Link webhook received');
+      
+    } else {
+      console.log('Unsupported webhook type:', webhookType);
+      res.send('Unsupported webhook type');
+    }
   } catch (error) {
-    // Handle any errors that occur during the process
-    console.error('Error processing webhook:', error);
-    res.status(500).send('Error processing webhook');
+    console.error('Error handling webhook:', error);
+    res.status(500).send('Error handling webhook');
   }
 });
 
